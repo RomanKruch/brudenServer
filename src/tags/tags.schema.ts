@@ -9,10 +9,8 @@ export class Tag extends Document {
   @Prop()
   imgId: string;
 
-  @Prop({required: true})
-  name: string;
-
-  
+  @Prop()
+  name: string;  
 }
 
 export const TagSchema = SchemaFactory.createForClass(Tag);

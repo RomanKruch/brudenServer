@@ -7,5 +7,7 @@ import { Tag } from './tags.schema';
 export class TagsService {
   constructor(@InjectModel(Tag.name) private tagModel: Model<Tag>) {}
 
-  
+  async getTags() {
+    return this.tagModel.find();
+  }
 }

@@ -15,14 +15,14 @@ import { UsersService } from './users.service';
 import { JwtGuard } from 'src/auth/guards/jwt-auth.guard';
 import { JwtStrategy } from 'src/auth/jwt.strategy';
 import { UserRequest } from 'src/types/userRequest';
-import { ToursService } from 'src/products/products.service';
+import { ProductsService } from 'src/products/products.service';
 import { Types } from 'mongoose';
 import { ChangePasswordDto, UpdateUserDto } from './dto/user.dto';
 import { compare, genSalt, hash } from 'bcrypt';
 
 @Controller('users')
 export class UsersController {
-  constructor(private usersService: UsersService, private toursService: ToursService) {}
+  constructor(private usersService: UsersService, private productsService: ProductsService) {}
 
   @Patch()
   @UseGuards(new JwtGuard(JwtStrategy))
@@ -71,7 +71,7 @@ export class UsersController {
       };
     } else {
       const res = await this.usersService.addToLiked(req.user, tourId);
-      const tour = await this.toursService.getTourById(res);
+      const tour = await this.productsService.getProductById(res);
       return tour;
     }
   }

@@ -17,15 +17,14 @@ import { UserRequest } from 'src/types/userRequest';
 import { TourDto } from './dto/tour.dto';
 import { Types } from 'mongoose';
 import { AdminGuard } from 'src/auth/guards/admin.guard';
-import { JwtOptionalStrategy } from 'src/auth/jwtOptional.strategy';
 import { UsersService } from 'src/users/users.service';
-import { JwtOptionalAuthGuard } from 'src/auth/guards/jwtOptional.guard';
 
 @Controller('tags')
 export class TagsController {
-  constructor(
-    private readonly tagService: TagsService,
-  ) {}
+  constructor(private readonly tagService: TagsService) {}
 
-  
+  @Get()
+  async getTags() {
+    return await this.tagService.getTags();
+  }
 }

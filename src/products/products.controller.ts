@@ -28,53 +28,57 @@ export class ProductsController {
 
   @Get()
   async getProducts(
-    @Query('page') page = 1,
-    @Query('limit') limit = 6,
-    @Query('price') price?: string,
-    @Query('title') title?: string,
-    @Query('location') location?: string,
+    @Query('limit') limit?: string,
+    @Query('page') page?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortByDesc') sortByDesc?: string,
+    @Query('filter') filter?: string,
+    @Query('tags') tags?: string,
   ) {
-    const filters = {
-      price: price ? Number(price) : undefined,
-      title,
-      location,
-    };
+    const res = await this.productsService.getProducts({
+      limit: limit ? Number(limit) : 6,
+      page: page ? Number(page) : 1,
+      sortBy,
+      sortByDesc,
+      filter,
+      tags,
+    });
 
-    return this.toursService.getTours(+page, +limit, filters);
+    return res;
   }
 
   @Get(':id')
   async getProductById(@Param('id') id: string) {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid tour ID format');
+      throw new BadRequestException('Invalid product ID format');
     }
 
-    const tour = await this.toursService.getTourById(new Types.ObjectId(id));
+    const tour = await this.productsService.getProductById(new Types.ObjectId(id));
 
     if (!tour) {
-      throw new NotFoundException('Tour not found');
+      throw new NotFoundException('Product not found');
     }
     return tour;
   }
 
-  @Post()
-  @UseGuards(new JwtGuard(JwtStrategy), AdminGuard)
-  async createTour(@Body() tourDto: TourDto) {
-    const newTour = await this.toursService.create(tourDto);
-    return {
-      newTour,
-    };
-  }
+  // @Post()
+  // @UseGuards(new JwtGuard(JwtStrategy), AdminGuard)
+  // async createTour(@Body() tourDto: TourDto) {
+  //   const newTour = await this.toursService.create(tourDto);
+  //   return {
+  //     newTour,
+  //   };
+  // }
 
-  @Post('arr')
-  @UseGuards(new JwtGuard(JwtStrategy), AdminGuard)
-  async createToursArr(@Body() toursDto: TourDto[]) {
-    const createdTours = await Promise.all(
-      toursDto.map(async item => {
-        return this.toursService.create(item);
-      }),
-    );
+  // @Post('arr')
+  // @UseGuards(new JwtGuard(JwtStrategy), AdminGuard)
+  // async createToursArr(@Body() toursDto: TourDto[]) {
+  //   const createdTours = await Promise.all(
+  //     toursDto.map(async item => {
+  //       return this.toursService.create(item);
+  //     }),
+  //   );
 
-    return createdTours;
-  }
+  //   return createdTours;
+  // }
 }
