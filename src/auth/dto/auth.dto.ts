@@ -1,7 +1,6 @@
-import { IsString, IsEmail, IsNotEmpty, MinLength, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsString, IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 
-class UserInfoDto {
+export class RegisterDto {
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -9,12 +8,6 @@ class UserInfoDto {
   @IsEmail()
   @IsNotEmpty()
   email: string;
-}
-
-export class RegisterDto {
-  @ValidateNested()
-  @Type(() => UserInfoDto)
-  userInfo: UserInfoDto;
 
   @IsString()
   @MinLength(8)

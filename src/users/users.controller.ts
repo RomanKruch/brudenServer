@@ -24,62 +24,84 @@ import { compare, genSalt, hash } from 'bcrypt';
 export class UsersController {
   constructor(private usersService: UsersService, private productsService: ProductsService) {}
 
-  @Patch()
+  // @Patch()
+  // @UseGuards(new JwtGuard(JwtStrategy))
+  // async updateUser(@Req() req: UserRequest, @Body() updateUserDto: UpdateUserDto) {
+  //   if (updateUserDto.email && updateUserDto.email !== req.user.email) {
+  //     const existingUser = await this.usersService.findByEmail(updateUserDto.email);
+  //     if (existingUser) {
+  //       throw new ConflictException('Email already here!');
+  //     }
+  //   }
+
+  //   const updatedUser = await this.usersService.update(req.user.id, updateUserDto);
+
+  //   return updatedUser;
+  // }
+
+  // @Patch('changePassword')
+  // @UseGuards(new JwtGuard(JwtStrategy))
+  // async changePassword(@Req() req: UserRequest, @Body() dto: ChangePasswordDto) {
+  //   const currentPassword = await this.usersService.getPassword(req.user.id);
+  //   const isPasswordValid = await compare(dto.oldPassword, currentPassword);
+  //   if (!isPasswordValid) {
+  //     throw new UnauthorizedException('Invalid password');
+  //   }
+
+  //   const SALT = await genSalt(parseInt(process.env.SALT));
+  //   const hashedPassword = await hash(dto.newPassword, SALT);
+  //   await this.usersService.updatePassword(req.user.id, hashedPassword);
+
+  //   return { message: 'Password changed successfully' };
+  // }
+
+  @Post('like/:productId')
   @UseGuards(new JwtGuard(JwtStrategy))
-  async updateUser(@Req() req: UserRequest, @Body() updateUserDto: UpdateUserDto) {
-    if (updateUserDto.email && updateUserDto.email !== req.user.email) {
-      const existingUser = await this.usersService.findByEmail(updateUserDto.email);
-      if (existingUser) {
-        throw new ConflictException('Email already here!');
-      }
+  async toggleLike(@Req() req: UserRequest, @Param('productId') productId: string) {
+    if (!Types.ObjectId.isValid(productId)) {
+      throw new BadRequestException('Invalid product ID format');
     }
 
-    const updatedUser = await this.usersService.update(req.user.id, updateUserDto);
-
-    return updatedUser;
-  }
-
-  @Patch('changePassword')
-  @UseGuards(new JwtGuard(JwtStrategy))
-  async changePassword(@Req() req: UserRequest, @Body() dto: ChangePasswordDto) {
-    const currentPassword = await this.usersService.getPassword(req.user.id);
-    const isPasswordValid = await compare(dto.oldPassword, currentPassword);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid password');
-    }
-
-    const SALT = await genSalt(parseInt(process.env.SALT));
-    const hashedPassword = await hash(dto.newPassword, SALT);
-    await this.usersService.updatePassword(req.user.id, hashedPassword);
-
-    return { message: 'Password changed successfully' };
-  }
-
-  @Post('like/:tourId')
-  @UseGuards(new JwtGuard(JwtStrategy))
-  async toggleLike(@Req() req: UserRequest, @Param('tourId') tourId: string) {
-    if (!Types.ObjectId.isValid(tourId)) {
-      throw new BadRequestException('Invalid tour ID format');
-    }
-
-    const isInLiked = req.user.liked.some(tour => tour._id.toString() === tourId);
+    const isInLiked = req.user.liked.some(product => product._id.toString() === productId);
 
     if (isInLiked) {
-      const res = await this.usersService.removeFromLiked(req.user, tourId);
+      const res = await this.usersService.removeFromLiked(req.user, productId);
       return {
         id: res,
       };
     } else {
-      const res = await this.usersService.addToLiked(req.user, tourId);
-      const tour = await this.productsService.getProductById(res);
-      return tour;
+      const res = await this.usersService.addToLiked(req.user, productId);
+      const product = await this.productsService.getProductById(res);
+      return product;
     }
   }
 
-  @Delete('deleteAccount')
+  @Post('cart/:productId')
   @UseGuards(new JwtGuard(JwtStrategy))
-  async deleteAccount(@Req() req: UserRequest) {
-    await this.usersService.deleteUser(req.user.id);
-    return { message: 'Account deleted successfully' };
+  async toggleCart(@Req() req: UserRequest, @Param('productId') productId: string) {
+    if (!Types.ObjectId.isValid(productId)) {
+      throw new BadRequestException('Invalid product ID format');
+    }
+
+    const isInCart = req.user.cart.some(product => product._id.toString() === productId);
+
+    if (isInCart) {
+      const res = await this.usersService.removeFromCart(req.user, productId);
+      return {
+        id: res,
+      };
+    } else {
+      const res = await this.usersService.addToCart(req.user, productId);
+      const product = await this.productsService.getProductById(res);
+      return product;
+    }
   }
+
+
+  // @Delete('deleteAccount')
+  // @UseGuards(new JwtGuard(JwtStrategy))
+  // async deleteAccount(@Req() req: UserRequest) {
+  //   await this.usersService.deleteUser(req.user.id);
+  //   return { message: 'Account deleted successfully' };
+  // }
 }

@@ -24,7 +24,7 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
-    const user = await this.usersService.findByEmail(registerDto.userInfo.email);
+    const user = await this.usersService.findByEmail(registerDto.email);
 
     if (user) {
       throw new ConflictException('Email already here!');

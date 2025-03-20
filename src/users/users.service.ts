@@ -37,27 +37,27 @@ export class UsersService {
     return newUser.save();
   }
 
-  async update(id: Types.ObjectId, userInfo: UpdateUserDto) {
-    return this.userModel
-      .findByIdAndUpdate(
-        id,
-        { userInfo },
-        {
-          new: true,
-          runValidators: true,
-        },
-      )
-      .select('-password')
-      .populate({
-        path: 'liked',
-        model: 'Product',
-      })
-      .populate({
-        path: 'cart',
-        model: 'Product',
-      })
-      .exec();
-  }
+  // async update(id: Types.ObjectId, userInfo: UpdateUserDto) {
+  //   return this.userModel
+  //     .findByIdAndUpdate(
+  //       id,
+  //       { userInfo },
+  //       {
+  //         new: true,
+  //         runValidators: true,
+  //       },
+  //     )
+  //     .select('-password')
+  //     .populate({
+  //       path: 'liked',
+  //       model: 'Product',
+  //     })
+  //     .populate({
+  //       path: 'cart',
+  //       model: 'Product',
+  //     })
+  //     .exec();
+  // }
 
   async updateToken(id: Types.ObjectId, token: string | null) {
     return await this.userModel
@@ -81,20 +81,34 @@ export class UsersService {
       .exec();
   }
 
-  async updatePassword(id: Types.ObjectId, password: string) {
-    return this.userModel.findByIdAndUpdate(id, { password });
-  }
+  // async updatePassword(id: Types.ObjectId, password: string) {
+  //   return this.userModel.findByIdAndUpdate(id, { password });
+  // }
 
   async addToLiked(user: User, productId: string) {
     await this.userModel.findByIdAndUpdate(user._id, {
-      likedTours: [...user.liked, new Types.ObjectId(productId)],
+      liked: [...user.liked, new Types.ObjectId(productId)],
     });
     return new Types.ObjectId(productId);
   }
 
   async removeFromLiked(user: User, productId: string) {
     await this.userModel.findByIdAndUpdate(user._id, {
-      likedTours: user.liked.filter(product => product._id.toString() !== productId),
+      liked: user.liked.filter(product => product._id.toString() !== productId),
+    });
+    return productId;
+  }
+
+  async addToCart(user: User, productId: string) {
+    await this.userModel.findByIdAndUpdate(user._id, {
+      cart: [...user.cart, new Types.ObjectId(productId)],
+    });
+    return new Types.ObjectId(productId);
+  }
+
+  async removeFromCart(user: User, productId: string) {
+    await this.userModel.findByIdAndUpdate(user._id, {
+      cart: user.cart.filter(product => product._id.toString() !== productId),
     });
     return productId;
   }

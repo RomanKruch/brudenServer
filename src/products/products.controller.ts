@@ -53,12 +53,12 @@ export class ProductsController {
       throw new BadRequestException('Invalid product ID format');
     }
 
-    const tour = await this.productsService.getProductById(new Types.ObjectId(id));
+    const product = await this.productsService.getProductById(new Types.ObjectId(id));
 
-    if (!tour) {
+    if (!product) {
       throw new NotFoundException('Product not found');
     }
-    return tour;
+    return product;
   }
 
   // @Post()
