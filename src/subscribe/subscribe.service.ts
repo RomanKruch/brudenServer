@@ -10,7 +10,7 @@ export class SubscribeService {
   async addSubscriber(email: string) {
     const existing = await this.subscribeModel.findOne({ email }).exec();
     if (existing) {
-      throw new ConflictException('Your already subscribed!');
+      throw new ConflictException('You are already subscribed!');
     }
     const subscriber = new this.subscribeModel({ email });
     await subscriber.save();
