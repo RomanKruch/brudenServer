@@ -33,6 +33,9 @@ export class Product extends Document {
   @Prop()
   price: number;
 
+  @Prop()
+  rating: number;
+
   @Prop({ type: Types.ObjectId, ref: Tag.name })
   tag: Types.ObjectId;
 }
