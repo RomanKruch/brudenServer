@@ -3,16 +3,17 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ProductsService } from './products.service';
 import { ProductsController } from './products.controller';
 import { Product, ProductSchema } from './products.schema';
-import { UsersService } from 'src/users/users.service';
-import { User, UserSchema } from 'src/users/users.schema';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { FileUploadModule } from 'src/fileUpload/fileUpload.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    CloudinaryModule,
+    FileUploadModule,
   ],
   controllers: [ProductsController],
-  providers: [ProductsService, UsersService],
+  providers: [ProductsService],
   exports: [ProductsService],
 })
 export class ProductsModule {}

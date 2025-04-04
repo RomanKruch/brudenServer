@@ -7,7 +7,7 @@ export class AdminGuard implements CanActivate {
     const user = request.user;
 
     if (!user || user.role !== 'admin') {
-      throw new ForbiddenException('Tou are not ADMIN!!!');
+      throw new ForbiddenException('You are not ADMIN!!!');
     }
 
     return true;

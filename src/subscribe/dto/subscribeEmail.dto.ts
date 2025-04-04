@@ -1,9 +1,4 @@
-import {
-  Validate,
-  ValidationArguments,
-  ValidatorConstraint,
-  ValidatorConstraintInterface,
-} from 'class-validator';
+import { Validate, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
 
 @ValidatorConstraint({ name: 'customEmail', async: false })
 export class CustomEmailValidator implements ValidatorConstraintInterface {
@@ -12,7 +7,7 @@ export class CustomEmailValidator implements ValidatorConstraintInterface {
     return emailRegex.test(email);
   }
 
-  defaultMessage(args: ValidationArguments) {
+  defaultMessage() {
     return 'Invalid email format. Please enter a valid email address.';
   }
 }

@@ -17,7 +17,7 @@ import { TagsModule } from './tags/tags.module';
     UsersModule,
     ProductsModule,
     SubscribeModule,
-    TagsModule
+    TagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

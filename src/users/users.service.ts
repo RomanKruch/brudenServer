@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User } from './users.schema';
 import { RegisterDto } from 'src/auth/dto/auth.dto';
-import { UpdateUserDto } from './dto/user.dto';
 
 @Injectable()
 export class UsersService {
@@ -37,28 +36,6 @@ export class UsersService {
     return newUser.save();
   }
 
-  // async update(id: Types.ObjectId, userInfo: UpdateUserDto) {
-  //   return this.userModel
-  //     .findByIdAndUpdate(
-  //       id,
-  //       { userInfo },
-  //       {
-  //         new: true,
-  //         runValidators: true,
-  //       },
-  //     )
-  //     .select('-password')
-  //     .populate({
-  //       path: 'liked',
-  //       model: 'Product',
-  //     })
-  //     .populate({
-  //       path: 'cart',
-  //       model: 'Product',
-  //     })
-  //     .exec();
-  // }
-
   async updateToken(id: Types.ObjectId, token: string | null) {
     return await this.userModel
       .findByIdAndUpdate(
@@ -80,10 +57,6 @@ export class UsersService {
       })
       .exec();
   }
-
-  // async updatePassword(id: Types.ObjectId, password: string) {
-  //   return this.userModel.findByIdAndUpdate(id, { password });
-  // }
 
   async addToLiked(user: User, productId: string) {
     await this.userModel.findByIdAndUpdate(user._id, {

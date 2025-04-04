@@ -3,11 +3,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TagsService } from './tags.service';
 import { TagsController } from './tags.controller';
 import { TagSchema, Tag } from './tags.schema';
-import { UsersService } from 'src/users/users.service';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { FileUploadModule } from 'src/fileUpload/fileUpload.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Tag.name, schema: TagSchema }]),
+    CloudinaryModule,
+    FileUploadModule,
   ],
   controllers: [TagsController],
   providers: [TagsService],

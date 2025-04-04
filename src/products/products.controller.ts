@@ -8,23 +8,21 @@ import {
   Param,
   BadRequestException,
   NotFoundException,
-  Req,
+  UploadedFiles,
+  UseInterceptors,
+  ConflictException,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { JwtGuard } from 'src/auth/guards/jwt-auth.guard';
 import { JwtStrategy } from 'src/auth/jwt.strategy';
-import { UserRequest } from 'src/types/userRequest';
-import { TourDto } from './dto/tour.dto';
 import { Types } from 'mongoose';
+import { CreateProductDto } from './dto/createProduct.dto';
 import { AdminGuard } from 'src/auth/guards/admin.guard';
-import { UsersService } from 'src/users/users.service';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @Controller('products')
 export class ProductsController {
-  constructor(
-    private readonly productsService: ProductsService,
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly productsService: ProductsService) {}
 
   @Get()
   async getProducts(
@@ -61,24 +59,44 @@ export class ProductsController {
     return product;
   }
 
-  // @Post()
-  // @UseGuards(new JwtGuard(JwtStrategy), AdminGuard)
-  // async createTour(@Body() tourDto: TourDto) {
-  //   const newTour = await this.toursService.create(tourDto);
-  //   return {
-  //     newTour,
-  //   };
-  // }
+  @Post()
+  @UseGuards(new JwtGuard(JwtStrategy), AdminGuard)
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'smallImg', maxCount: 1 },
+      { name: 'largeImg', maxCount: 1 },
+    ]),
+  )
+  async createProduct(
+    @UploadedFiles() files: { smallImg?: Express.Multer.File[]; largeImg?: Express.Multer.File[] },
+    @Body() createProductDto: CreateProductDto,
+  ) {
+    const isExist = await this.productsService.getProductByTitle(createProductDto.title);
 
-  // @Post('arr')
-  // @UseGuards(new JwtGuard(JwtStrategy), AdminGuard)
-  // async createToursArr(@Body() toursDto: TourDto[]) {
-  //   const createdTours = await Promise.all(
-  //     toursDto.map(async item => {
-  //       return this.toursService.create(item);
-  //     }),
-  //   );
+    if (isExist) {
+      throw new ConflictException('Product with same title already exist!');
+    }
 
-  //   return createdTours;
-  // }
+    const { smallImg, largeImg } = files;
+
+    if (!smallImg || !largeImg) {
+      throw new BadRequestException('Small img and large img are required!');
+    }
+
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (
+      !allowedMimeTypes.includes(smallImg[0].mimetype) ||
+      !allowedMimeTypes.includes(largeImg[0].mimetype)
+    ) {
+      throw new BadRequestException('Images must be a jpeg, png or webp format!');
+    }
+
+    const newProduct = await this.productsService.createProduct(
+      createProductDto,
+      smallImg[0],
+      largeImg[0],
+    );
+
+    return newProduct;
+  }
 }

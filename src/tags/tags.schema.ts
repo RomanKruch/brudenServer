@@ -10,7 +10,7 @@ export class Tag extends Document {
   imgId: string;
 
   @Prop()
-  name: string;  
+  name: string;
 }
 
 export const TagSchema = SchemaFactory.createForClass(Tag);

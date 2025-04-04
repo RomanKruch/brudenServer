@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Product } from './products.schema';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { CreateProductDto } from './dto/createProduct.dto';
 
 interface ProductFilter {
   limit: number;
@@ -14,12 +16,17 @@ interface ProductFilter {
 
 @Injectable()
 export class ProductsService {
-  constructor(@InjectModel(Product.name) private productModel: Model<Product>) {}
+  constructor(
+    private readonly cloudinaryService: CloudinaryService,
+    @InjectModel(Product.name) private productModel: Model<Product>,
+  ) {}
 
   async getProducts({ limit, page, sortBy, sortByDesc, filter, tags }: ProductFilter) {
     const normalizedFilter = filter ? filter.split('|').map(Number) : [0, 9999];
 
-    const normalizedTags = tags ? tags.split('|').map((tag) => (Types.ObjectId.isValid(tag) ? new Types.ObjectId(tag) : tag)) : '';
+    const normalizedTags = tags
+      ? tags.split('|').map(tag => (Types.ObjectId.isValid(tag) ? new Types.ObjectId(tag) : tag))
+      : '';
 
     const query: any = {
       price: { $gte: normalizedFilter[0], $lte: normalizedFilter[1] },
@@ -54,5 +61,28 @@ export class ProductsService {
 
   async getProductById(id: Types.ObjectId) {
     return this.productModel.findById(id).populate('tag').exec();
+  }
+
+  async getProductByTitle(title: string) {
+    return this.productModel.findOne({ title }).populate('tag').exec();
+  }
+
+  async createProduct(
+    productData: CreateProductDto,
+    smallImg: Express.Multer.File,
+    largeImg: Express.Multer.File,
+  ) {
+    const smallImgUpload = await this.cloudinaryService.uploadSmallImage(smallImg);
+    const largeImgUpload = await this.cloudinaryService.uploadLargeImage(largeImg);
+
+    const newProduct = new this.productModel({
+      ...productData,
+      img: {
+        small: { ref: smallImgUpload.secure_url, id: smallImgUpload.public_id },
+        large: { ref: largeImgUpload.secure_url, id: largeImgUpload.public_id },
+      },
+    });
+
+    return (await newProduct.save()).populate('tag');
   }
 }
