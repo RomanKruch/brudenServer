@@ -22,11 +22,9 @@ export class ProductsService {
   ) {}
 
   async getProducts({ limit, page, sortBy, sortByDesc, filter, tags }: ProductFilter) {
-    const normalizedFilter = filter ? filter.split('|').map(Number) : [0, 9999];
+    const normalizedFilter = filter ? filter.split('|').map(Number) : [0, 199];
 
-    const normalizedTags = tags
-      ? tags.split('|').map(tag => (Types.ObjectId.isValid(tag) ? new Types.ObjectId(tag) : tag))
-      : '';
+    const normalizedTags = tags ? tags.split('|') : [];
 
     const query: any = {
       price: { $gte: normalizedFilter[0], $lte: normalizedFilter[1] },
