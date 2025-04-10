@@ -1,27 +1,25 @@
-import { IsString, IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import { IsNotEmpty, MinLength, Validate } from 'class-validator';
+import { CustomEmailValidator } from 'src/helpers/customEmailValidation';
 
 export class RegisterDto {
-  @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Name is required!' })
   name: string;
 
-  @IsEmail()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Email is required!' })
+  @Validate(CustomEmailValidator)
   email: string;
 
-  @IsString()
-  @MinLength(8)
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Password is required!' })
+  @MinLength(8, { message: 'Password length must be 8 or more!' })
   password: string;
 }
 
 export class LoginDto {
-  @IsEmail()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Email is required!' })
+  @Validate(CustomEmailValidator)
   email: string;
 
-  @IsString()
-  @MinLength(8)
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Password is required!' })
+  @MinLength(8, { message: 'Password length must be 8 or more!' })
   password: string;
 }

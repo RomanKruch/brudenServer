@@ -1,18 +1,8 @@
-import { Validate, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
-
-@ValidatorConstraint({ name: 'customEmail', async: false })
-export class CustomEmailValidator implements ValidatorConstraintInterface {
-  validate(email: string) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
-
-  defaultMessage() {
-    return 'Invalid email format. Please enter a valid email address.';
-  }
-}
+import { IsNotEmpty, Validate } from 'class-validator';
+import { CustomEmailValidator } from 'src/helpers/customEmailValidation';
 
 export class SubscribeEmailDto {
+  @IsNotEmpty({ message: 'Email is required!' })
   @Validate(CustomEmailValidator)
   email: string;
 }
